@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <script src="disp_map.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+</head>
+
+<!-- 'https://raw.githubusercontent.com/chuanlongZhou/500m_BIGCarbon/main/Luxor/Luxor.geojson?token=GHSAT0AAAAAAB6QUKXWBAA5OS2PYC5QWB44ZABZK3Q' -->
+
+<body>
+    <header class="header">
+        <h1>Gridded Residential Scope1&2 Carbon Emission</h1>
+        <p>Building Integral Gridded Carbon (BIGCarbon) Emission Model</p>
+    </header>
+
+    <div class="container-elment">
+        <nav class="navbar">
+            <ul>
+                <li>Egypt</li>
+                <hr>
+                <li><a href="#" onclick="region_change('GreaterCairo')">GreaterCairo</a></li>
+                <li><a href="#" onclick="region_change('Alexandria')">Alexandria</a></li>
+                <li><a href="#" onclick="region_change('Luxor')">Luxor</a></li>
+                <li>South Africa</li>
+                <hr>
+                <li><a href="#" onclick="region_change('Johannesburg')">Johannesburg Region</a></li>
+                <li><a href="#" onclick="region_change('eThekwini')">eThekwini</a></li>
+                <li>Turkey</li>
+                <hr>
+                <li><a href="#" onclick="region_change('Adana')">Adana</a></li>
+                <li><a href="#" onclick="region_change('Ordu')">Ordu</a></li>
+                <li><a href="#" onclick="region_change('Trabzon')">Trabzon</a></li>
+                <li><a href="#" onclick="region_change('Manisa')">Manisa</a></li>
+
+            </ul>
+        </nav>
+        <div id="data_panel">
+            <!-- <div id="analysis">
+                asdfsd
+            </div> -->
+
+            <div id="map"></div>
+            <div style="margin-bottom:10px;">
+
+                <label for="years">Choose a year:</label>
+
+                <select name="years" id="years" oninput="input_changes()">
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                </select>
+
+                <label for="scope">Choose scope:</label>
+
+                <select name="scope" id="scope" oninput="input_changes()">
+                    <option value="1">Scope 1</option>
+                    <option value="2">Scope 2</option>
+                </select>
+            </div>
+            
+            <div>
+                <input type="range" min=0 max=36 value=3 class="slider" name="date" id="date" onmouseup="input_changes()">
+                <label for="date" id="date_label">2019-01-01</label>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        Just for fun, by <a href="https://defve1988.github.io/" target="_blank">chuanlongZhou</a> @ LSCE,
+        <del>Kayrros</del>, 2023
+    </footer>
+
+</body>
+<script>
+    var map = init_map()
+    var region ="Luxor"
+    let para = {
+        year:2019,
+        scope:1,
+        date:3,
+    }
+    
+    async function input_changes(){
+        const year = document.getElementById("years").value;
+        const scope = document.getElementById("scope").value;
+        const date = document.getElementById("date").value;
+        let res = await get_data(region, year, date, scope)
+        document.getElementById("date_label").innerHTML = res.date;
+        map.off();
+        map.remove();
+        map = init_map()
+        display_region(res.geoJson_data, region, scope, res.grade_list)
+
+        return {year, scope, date}
+    }
+
+
+    console.log(para)
+
+    async function region_change(r){
+        map.off();
+        map.remove();
+        map = init_map()
+        let res = await get_data(r, para.year, para.date, para.scope)
+        document.getElementById("date_label").innerHTML = res.date;
+        display_region(res.geoJson_data, r, para.scope, res.grade_list)
+        region = r
+    }
+
+    region_change("Luxor")
+
+
+
+
+
+</script>
+
+</html>
